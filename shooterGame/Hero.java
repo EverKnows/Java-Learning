@@ -74,7 +74,7 @@ public class Hero extends FlyingObject {
             if (bullets[i] != null && bullets[i].flag == 0) {
                 if ((bullets[i].x <= this.x + this.width) && (bullets[i].x >= this.x)
                         && (bullets[i].y <= this.y + this.height) && (bullets[i].y >= this.y)) {
-                   // life = life - 2.5;
+                    life = life - 2.5;
                     bullets[i] = null;
                 }
             }
