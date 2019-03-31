@@ -1,24 +1,26 @@
 package com.zzxx.shooterGame;
 
 import java.awt.image.BufferedImage;
-import java.sql.BatchUpdateException;
 
 public class Airplane extends FlyingObject implements Enemy {
     protected int speed = 4;
-    protected double life = 1.0;
-    protected  int fireSpeed = 2;
+    protected int fireSpeed = 2;
+    protected boolean SmallPlane = true;
 
-    public Airplane() {
-       // this.image = Shootgame.airplane;
-        this.width = Shootgame.airplane.getWidth();
-        this.height = Shootgame.airplane.getHeight();
-        this.x = (int)(Math.random() * (Shootgame.WIDTH - width));
-        this.y = 0;
+    public Airplane(BufferedImage image) {
+        this.image = image;
+        this.width = this.image.getWidth();
+        this.height = this.image.getHeight();
+        this.x = (int) (Math.random() * (Shootgame.WIDTH - width));
+        this.y = (int) (Math.random() * (Shootgame.HEIGHT / 3));
+        this.life = 1;
     }
 
     @Override
     public int getScore() {
-        return 2;
+        if (SmallPlane)
+            return 2;
+        return 10;
     }
 
     @Override
@@ -36,15 +38,31 @@ public class Airplane extends FlyingObject implements Enemy {
     public void hitBy(Bullets[] bullets) {
         for (int i = 0; i < bullets.length; i++) {
             if (bullets[i] != null && bullets[i].flag == 1) {
-                if ((bullets[i].x <= (this.x + this.width)) && (bullets[i].x >= this.x)
-                        && (bullets[i].y <= (this.y + this.height)) && (bullets[i].y >= this.y)) {
+                if ((bullets[i].x <= (this.x + this.width))
+                        && (bullets[i].x >= this.x)
+                        && (bullets[i].y <= (this.y + this.height))
+                        && (bullets[i].y >= this.y)) {
                     life = life - 0.5;
                     bullets[i] = null;
-                   // return true;
                 }
             }
         }
-        //return false;
     }
 
+    @Override
+    public BufferedImage getImage() {
+        if (SmallPlane) {
+            if (life > 0)
+                return Shootgame.AIRPLANE[0];
+            if (this.imageSwitch <= 49)
+                return Shootgame.AIRPLANE[this.imageSwitch++ / 10];
+        } else {
+            if (life > 0)
+                return Shootgame.BIGPLANE[0];
+            if (this.imageSwitch <= 49)
+                return Shootgame.BIGPLANE[this.imageSwitch++ / 10];
+        }
+
+        return null;
+    }
 }

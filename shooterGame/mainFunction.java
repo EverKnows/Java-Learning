@@ -1,9 +1,7 @@
 package com.zzxx.shooterGame;
 
-import javax.imageio.*;
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
 
 public class mainFunction {
     public static void main(String[] args) {

@@ -1,20 +1,19 @@
 package com.zzxx.shooterGame;
 
-import com.zzxx.shooterGame.Bullets;
-import com.zzxx.shooterGame.FlyingObject;
-import com.zzxx.shooterGame.Shootgame;
+import java.awt.image.BufferedImage;
 
 public class Hero extends FlyingObject {
     public int doubleFire = 0;
-    public double life = 100;
     public int score = 0;
+    public int bangImageSwitch = 0;
 
     public Hero() {
-        this.image = Shootgame.hero0;
+        this.image = Shootgame.HERO[0];
         this.x = 150;
         this.y = 400;
         this.width = image.getWidth();
         this.height = image.getHeight();
+        this.life = 100;
     }
 
     @Override
@@ -74,37 +73,56 @@ public class Hero extends FlyingObject {
             if (bullets[i] != null && bullets[i].flag == 0) {
                 if ((bullets[i].x <= this.x + this.width) && (bullets[i].x >= this.x)
                         && (bullets[i].y <= this.y + this.height) && (bullets[i].y >= this.y)) {
-                    life = life - 2.5;
+                   // life = life - 2.5;
                     bullets[i] = null;
                 }
             }
         }
-
     }
 
-    public void Bang(Airplane[] airplanes, Bee bees) {
-        boolean isBang = false;
-        int topNodeX = (this.x + this.width / 2);
+    public boolean isBang(FlyingObject[] flyingObjects) {
+        int topNodeX = (this.x + this.width / 2);  //这里只检测飞机图像的头是否碰撞到其他飞行物
         int topNodeY = this.y;
-        for (int i = 0; i < airplanes.length; i++) {
-            if (airplanes[i] != null && airplanes[i].life > 0) {
-                isBang = (topNodeX <= airplanes[i].x + airplanes[i].width) && (topNodeX > airplanes[i].x)
-                        && (topNodeY >= airplanes[i].y) && (topNodeY <= airplanes[i].y + airplanes[i].height);
-                if (isBang) {
-                    this.life -= 5;
-                    airplanes[i].life = 0;
+        boolean isBang = false;
+
+        for (int i = 0; i < flyingObjects.length; i++) {
+            if (flyingObjects[i] != null && flyingObjects[i].life > 0) {
+
+                if ((topNodeX <= flyingObjects[i].x + flyingObjects[i].width)
+                        && (topNodeX > flyingObjects[i].x)
+                        && (topNodeY >= flyingObjects[i].y)
+                        && (topNodeY <= flyingObjects[i].y + flyingObjects[i].height)) {
+                    flyingObjects[i].life = 0;
+                    this.bangImageSwitch = 1;
+                    isBang = true;
+                    break;
                 }
             }
-            isBang = false;
+        }
+        return isBang;
+    }
+
+
+    @Override
+    public BufferedImage getImage() {
+        if (this.life > 0 && this.bangImageSwitch == 0) {       // 正常飞行的动画效果
+            this.imageSwitch = (this.imageSwitch + 1) % 30;
+            return Shootgame.HERO[this.imageSwitch / 15];
         }
 
-        if (bees != null && bees.life > 0) {
-            isBang = (topNodeX <= bees.x + bees.width) && (topNodeX > bees.x)
-                    && (topNodeY >= bees.y) && (topNodeY <= bees.y + bees.height);
-            if (isBang) {
-                this.life -= 5;
-                bees.life = 0;
-            }
+        if (this.life <= 0 && this.life > -100) {         // 英雄机首次死亡时，将其imageSwitch属性清零，方便绘出爆炸效果
+            this.imageSwitch = 0;
+            this.life = -999;
         }
+
+        if (this.bangImageSwitch > 0 && this.life > 0) {      // 碰撞时的爆炸效果
+            this.bangImageSwitch = (this.bangImageSwitch + 1) % 50;
+            return Shootgame.HERO[this.bangImageSwitch / 10];
+        }
+
+        if (this.imageSwitch <= 49 && this.life <= 0)        //死亡时的动画效果
+            return Shootgame.HERO[this.imageSwitch++ / 10 + 1];
+
+        return null;
     }
 }
