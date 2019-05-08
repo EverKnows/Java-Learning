@@ -1,8 +1,11 @@
 package com.zzxx;
 
-public class Demo3 {
+import java.util.Iterator;
+
+public class Demo3 implements Iterable<Object>{
     private Node head = new Node();
     private int size = 0;
+    private int modCount = 0;
     public class Node {
         public Node next;
         public Object data;
@@ -22,6 +25,7 @@ public class Demo3 {
         }
         p.next = new Node(obj);
         size++;
+        modCount++;
     }
 
     public void insert(int index, Object obj) {
@@ -36,6 +40,7 @@ public class Demo3 {
         newNode.next = p.next;
         p.next = newNode;
         size++;
+        modCount++;
     }
 
     public void remove(Object obj) {
@@ -50,6 +55,7 @@ public class Demo3 {
             }
         }
         size--;
+        modCount++;
     }
 
     public void remove(int index) {
@@ -63,6 +69,7 @@ public class Demo3 {
         }
         p.next = p.next.next;
         size--;
+        modCount++;
     }
 
     public int size() {
@@ -79,6 +86,7 @@ public class Demo3 {
             p = p.next;
         }
         p.next.data = obj;
+        modCount++;
     }
 
     public boolean isEmpty() {
@@ -116,5 +124,40 @@ public class Demo3 {
         }
         sb.append("]");
         return sb.toString();
+    }
+    public Iterator<Object> iterator() {
+        return new Iterator<Object>() {
+            int cursor = 1;
+            int expectedModeCount = modCount;
+            @Override
+            public boolean hasNext() {
+                try {
+                    if (expectedModeCount != modCount) {
+                        throw new Exception("线程不安全！");
+                    }
+                    return cursor <= size();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return cursor <= size();
+            }
+
+            @Override
+            public Object next() {
+                try {
+                    if (expectedModeCount != modCount) {
+                        throw new Exception("线程不安全！");
+                    }
+                    if (hasNext()) {
+                        Object obj = get(cursor);
+                        cursor++;
+                        return obj;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
     }
 }
